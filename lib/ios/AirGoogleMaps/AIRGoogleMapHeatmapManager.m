@@ -1,18 +1,6 @@
-//
-//  AIRGoogleMapHeatmapManager.m
-//
-//  Created by David Cako on 29 April 2018.
-//
-
 #import "AIRGoogleMapHeatmapManager.h"
 #import "AIRGoogleMapHeatmap.h"
-#import "AIRGoogleMap.h"
-#import <React/RCTBridge.h>
-#import <React/UIView+React.h>
-
-@interface AIRGoogleMapHeatmapManager()
-
-@end
+#import "RCTConvert+Heatmaps.h"
 
 @implementation AIRGoogleMapHeatmapManager
 
@@ -20,13 +8,16 @@ RCT_EXPORT_MODULE()
 
 - (UIView *)view
 {
-  AIRGoogleMapHeatmap *heatmap = [AIRGoogleMapHeatmap new];
-  return heatmap;
+    AIRGoogleMapHeatmap *heatmap = [[AIRGoogleMapHeatmap alloc] init];
+    return heatmap;
 }
 
-RCT_EXPORT_VIEW_PROPERTY(points, NSArray<NSDictionary *>)
+RCT_EXPORT_VIEW_PROPERTY(points, GMUWeightedLatLngArray)
 RCT_EXPORT_VIEW_PROPERTY(radius, NSUInteger)
-RCT_EXPORT_VIEW_PROPERTY(opacity, float)
-RCT_EXPORT_VIEW_PROPERTY(gradient, NSDictionary *)
+RCT_EXPORT_VIEW_PROPERTY(gradient, GMUGradient)
+RCT_EXPORT_VIEW_PROPERTY(opacity, CGFloat)
+RCT_EXPORT_VIEW_PROPERTY(maxIntensity, CGFloat)
+RCT_EXPORT_VIEW_PROPERTY(gradientSmoothing, CGFloat)
+RCT_EXPORT_VIEW_PROPERTY(heatmapMode, NSString)
 
 @end

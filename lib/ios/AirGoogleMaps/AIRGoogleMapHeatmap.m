@@ -1,64 +1,81 @@
-//
-//  AIRGoogleMapHeatmap.m
-//
-//  Created by David Cako on 29 April 2018.
-//
-#import <UIKit/UIKit.h>
 #import "AIRGoogleMapHeatmap.h"
-#import <GoogleMaps/GoogleMaps.h>
-#import <React/RCTConvert.h>
-#import <React/RCTConvert+CoreLocation.h>
 
 @implementation AIRGoogleMapHeatmap
 
-- (instancetype)init
-{
-  if (self = [super init]) {
-    _heatmap = [[GMUHeatmapTileLayer alloc] init];
-  }
-  return self;
-}
-
-- (void)setPoints:(NSArray<NSDictionary *> *)points
-{
-    NSMutableArray<GMUWeightedLatLng *> *w = [NSMutableArray arrayWithCapacity:points.count];
-    for (int i = 0; i < points.count; i++) {
-        CLLocationCoordinate2D coord = [RCTConvert CLLocationCoordinate2D:points[i]];
-        float intensity = 1.0;
-        if (points[i][@"weight"] != nil) {
-            intensity = [RCTConvert float:points[i][@"weight"]];
-        }
-        [w addObject:[[GMUWeightedLatLng alloc] initWithCoordinate:coord intensity:intensity]];
+- (void) refreshHeatmap {
+    if(_weightTileLayer != nil) {
+        _weightTileLayer.map = nil;
+        [self setMap:_map];
+    } else if(_densityTileLayer != nil) {
+        _densityTileLayer.map = nil;
+        [self setMap:_map];
     }
-    _points = w;
-    [self.heatmap setWeightedData:w];
-    [self.heatmap clearTileCache];
-    [self.heatmap setMap:self.heatmap.map];
 }
 
-- (void)setRadius:(NSUInteger)radius
-{
+- (void) setPoints:(NSArray<GMUWeightedLatLng *> * _Nonnull)points {
+    _points = points;
+    [self refreshHeatmap];
+}
+
+- (void) setRadius:(NSUInteger)radius {
     _radius = radius;
-    [self.heatmap setRadius:radius];
+    [self refreshHeatmap];
 }
 
-- (void)setOpacity:(float)opacity
-{
+- (void) setMaxIntensity:(CGFloat)maxIntensity {
+    _maxIntensity = maxIntensity;
+    [self refreshHeatmap];
+}
+
+- (void) setOpacity:(CGFloat)opacity {
     _opacity = opacity;
-    [self.heatmap setOpacity:opacity];
+    [self refreshHeatmap];
 }
 
-- (void)setGradient:(NSDictionary *)gradient
-{
-    NSArray<UIColor *> *colors = [RCTConvert UIColorArray:gradient[@"colors"]];
-    NSArray<NSNumber *> *colorStartPoints = [RCTConvert NSNumberArray:gradient[@"startPoints"]];
-    NSUInteger colorMapSize = [RCTConvert NSUInteger:gradient[@"colorMapSize"]];
-    
-    GMUGradient *gmuGradient = [[GMUGradient alloc] initWithColors:colors
-                                        startPoints:colorStartPoints
-                                       colorMapSize:colorMapSize];
-    _gradient = gmuGradient;
-    [self.heatmap setGradient:gmuGradient];
+- (void) setGradient:(GMUGradient *)gradient {
+    _gradient = gradient;
+    [self refreshHeatmap];
+}
+
+- (void) setGradientSmoothing:(CGFloat)gradientSmoothing {
+    _gradientSmoothing = gradientSmoothing;
+    [self refreshHeatmap];
+}
+
+- (void)setMap:(AIRGoogleMap *)map {
+    _map = map;
+    if(map == nil) {
+        if(_weightTileLayer != nil) {
+            _weightTileLayer.map = nil;
+        } else if(_densityTileLayer != nil) {
+            _densityTileLayer.map = nil;
+        }
+    } else {
+        if([_heatmapMode isEqualToString: @"POINTS_DENSITY"]) {
+            GMUHeatmapTileLayer *tileLayer = [[GMUHeatmapTileLayer alloc] init];
+            tileLayer.weightedData = _points;
+            tileLayer.radius = _radius;
+            tileLayer.gradient = _gradient;
+            tileLayer.map = map;
+            _densityTileLayer = tileLayer;
+            _weightTileLayer = nil;
+        } else {
+            GMUWeightHeatmapTileLayer *tileLayer = [[GMUWeightHeatmapTileLayer alloc] init];
+            tileLayer.weightedData = _points;
+            tileLayer.radius = _radius;
+            tileLayer.staticMaxIntensity = _maxIntensity;
+            tileLayer.gradient = _gradient;
+            tileLayer.gradientSmoothing = _gradientSmoothing;
+            tileLayer.map = map;
+            _weightTileLayer = tileLayer;
+            _densityTileLayer = nil;
+        }
+    }
+}
+
+- (void)setHeatmapMode:(NSString *)heatmapMode {
+    _heatmapMode = heatmapMode;
+    [self refreshHeatmap];
 }
 
 @end
