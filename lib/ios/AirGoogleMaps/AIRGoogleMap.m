@@ -81,7 +81,6 @@ id regionAsJSON(MKCoordinateRegion region) {
     _overlays = [NSMutableArray array];
     _initialCamera = nil;
     _cameraProp = nil;
-    _initialRegionSet = false;
     _initialRegion = MKCoordinateRegionMake(CLLocationCoordinate2DMake(0.0, 0.0), MKCoordinateSpanMake(0.0, 0.0));
     _region = MKCoordinateRegionMake(CLLocationCoordinate2DMake(0.0, 0.0), MKCoordinateSpanMake(0.0, 0.0));
     _initialCameraSetOnLoad = false;
