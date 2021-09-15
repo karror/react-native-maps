@@ -20,3 +20,4 @@
 @property (nonatomic, assign) CGFloat gradientSmoothing;
 @property (nonatomic, strong) NSString *heatmapMode;
 
+@end
