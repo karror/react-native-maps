@@ -2,7 +2,8 @@
 
 #import <React/RCTBridge.h>
 #import <React/RCTEventDispatcher.h>
-#import <React/RCTImageLoader.h>
+// #import <React/RCTImageLoader.h>
+#import <React-RCTImage/React/RCTImageLoader.h>
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 
